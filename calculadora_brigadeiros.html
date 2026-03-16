@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Brigadeiros</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeece8;
+    --tx: #1a1a18; --tx2: #6b6b67; --tx3: #9a9a96;
+    --bd: rgba(0,0,0,0.12); --bd2: rgba(0,0,0,0.22);
+    --rm: 8px; --rl: 12px;
+    --sbg: #eaf3de; --stx: #3b6d11;
+    --wbg: #faeeda; --wtx: #633806;
+    --dbg: #fcebeb; --dtx: #a32d2d;
+    --ibg: #e6f1fb; --itx: #185fa5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c; --bg2: #2a2a28; --bg3: #323230;
+      --tx: #f0efea; --tx2: #a0a09a; --tx3: #6e6e6a;
+      --bd: rgba(255,255,255,0.12); --bd2: rgba(255,255,255,0.22);
+      --sbg: #173404; --stx: #c0dd97;
+      --wbg: #412402; --wtx: #fac775;
+      --dbg: #501313; --dtx: #f7c1c1;
+      --ibg: #042c53; --itx: #b5d4f4;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg3); color: var(--tx); min-height: 100vh; padding: 1.5rem; }
+  .app { max-width: 980px; margin: 0 auto; background: var(--bg); border-radius: var(--rl); border: 0.5px solid var(--bd); padding: 1.5rem 2rem 2rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: var(--tx2); margin-bottom: 1.5rem; }
+  .sec { font-size: 14px; font-weight: 500; margin-bottom: 10px; margin-top: 1.5rem; }
+  .card { background: var(--bg); border: 0.5px solid var(--bd); border-radius: var(--rl); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .card-t { font-size: 14px; font-weight: 500; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+  @media(max-width:640px) { .g4{grid-template-columns:1fr 1fr} .g3{grid-template-columns:1fr 1fr} .g2{grid-template-columns:1fr} }
+  .fld { display: flex; flex-direction: column; gap: 4px; }
+  label { font-size: 12px; color: var(--tx2); }
+  input[type=number], input[type=text], select {
+    width: 100%; height: 34px; font-size: 13px;
+    border: 0.5px solid var(--bd2); border-radius: var(--rm);
+    padding: 0 8px; background: var(--bg2); color: var(--tx);
+  }
+  input:focus, select:focus { outline: none; border-color: var(--tx2); }
+  .btn-add { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--tx2); border: 0.5px solid var(--bd); border-radius: var(--rm); padding: 5px 12px; cursor: pointer; background: transparent; margin-top: 6px; }
+  .btn-add:hover { background: var(--bg2); }
+  .btn-rm { width: 30px; height: 30px; border: 0.5px solid var(--bd); border-radius: var(--rm); background: transparent; color: var(--tx2); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .btn-rm:hover { background: var(--dbg); color: var(--dtx); }
+  .btn-calc { width: 100%; height: 42px; border: none; border-radius: var(--rm); background: var(--tx); color: var(--bg); font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 1rem; }
+  .btn-calc:hover { opacity: 0.85; }
+  .mc { background: var(--bg2); border-radius: var(--rm); padding: 12px 14px; }
+  .ml { font-size: 12px; color: var(--tx2); margin-bottom: 4px; }
+  .mv { font-size: 22px; font-weight: 500; }
+  .ms { font-size: 11px; color: var(--tx3); margin-top: 2px; }
+  .res { margin-top: 1.5rem; }
+  .fr { border: 0.5px solid var(--bd); border-radius: var(--rl); padding: 12px 14px; margin-bottom: 8px; }
+  .fr-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .rg { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 10px; }
+  @media(max-width:600px) { .rg{grid-template-columns:1fr 1fr} }
+  .div { height: 0.5px; background: var(--bd); margin: 1rem 0; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab { padding: 7px 15px; border-radius: var(--rm); border: 0.5px solid var(--bd); font-size: 13px; cursor: pointer; background: transparent; color: var(--tx2); }
+  .tab.on { background: var(--tx); color: var(--bg); border-color: transparent; }
+  .tab:hover:not(.on) { background: var(--bg2); }
+  .tag { display: inline-flex; align-items: center; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .ts { background: var(--sbg); color: var(--stx); }
+  .tw { background: var(--wbg); color: var(--wtx); }
+  .td { background: var(--dbg); color: var(--dtx); }
+  .ti { background: var(--ibg); color: var(--itx); }
+  .ht { font-size: 11px; color: var(--tx3); margin-top: 3px; }
+  .cb { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; color: var(--tx3); }
+  .cb span:not(:last-child)::after { content: '·'; margin-left: 8px; }
+  input[type=range] { width: 100%; accent-color: var(--tx); }
+  /* Compras tab grid */
+  .comp-row { display: grid; grid-template-columns: 2fr 0.9fr 0.9fr 0.9fr 1.1fr 30px; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .comp-hd  { display: grid; grid-template-columns: 2fr 0.9fr 0.9fr 0.9fr 1.1fr 30px; gap: 8px; margin-bottom: 4px; }
+  .lbl { font-size: 11px; color: var(--tx3); }
+  .calc-pill { font-size: 12px; font-weight: 500; color: var(--itx); background: var(--ibg); border-radius: var(--rm); padding: 0 10px; height: 34px; display: flex; align-items: center; white-space: nowrap; overflow: hidden; }
+  /* Receita tab grid */
+  .rec-row { display: grid; grid-template-columns: 2.2fr 0.9fr 1fr 30px; gap: 8px; align-items: end; margin-bottom: 8px; }
+  .rec-hd  { display: grid; grid-template-columns: 2.2fr 0.9fr 1fr 30px; gap: 8px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Calculadora de Brigadeiros</h1>
+  <p class="sub">Calcule custos, quantidades e lucro por sabor e por lote</p>
+
+  <div class="tabs">
+    <button class="tab on" onclick="setTab('config')">Configuração</button>
+    <button class="tab"    onclick="setTab('compras')">Compras</button>
+    <button class="tab"    onclick="setTab('receita')">Receita</button>
+    <button class="tab"    onclick="setTab('embalagem')">Embalagem</button>
+    <button class="tab"    onclick="setTab('venda')">Preço de venda</button>
+  </div>
+
+  <!-- ═══ CONFIG ═══ -->
+  <div id="tab-config">
+    <div class="card">
+      <div class="card-t" style="margin-bottom:12px">Lote de produção</div>
+      <div class="g3">
+        <div class="fld">
+          <label>Número de receitas</label>
+          <input type="number" id="num-receitas" value="2" min="0.5" step="0.5">
+          <div class="ht">Ex: 2 = 2× cada ingrediente base</div>
+        </div>
+        <div class="fld">
+          <label>Brigadeiros por receita</label>
+          <input type="number" id="brig-por-receita" value="40" min="1">
+        </div>
+        <div class="fld">
+          <label>Peso final por brigadeiro (g)</label>
+          <input type="number" id="peso-brig" value="20" min="1">
+          <div class="ht">Inclui massa + cobertura</div>
+        </div>
+      </div>
+      <div class="div"></div>
+      <div class="card-t" style="margin-bottom:12px">4 sabores do lote</div>
+      <div class="g2" id="sabores-config"></div>
+    </div>
+    <div class="card">
+      <div class="card-t" style="margin-bottom:12px">Distribuição de receitas por sabor</div>
+      <div id="dist-config"></div>
+      <div class="ht" id="dist-hint"></div>
+    </div>
+  </div>
+
+  <!-- ═══ COMPRAS ═══ -->
+  <div id="tab-compras" style="display:none">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-t">Ingredientes — como você compra</div>
+        <span class="tag ti">Custo/g calculado automaticamente</span>
+      </div>
+      <p style="font-size:12px;color:var(--tx2);margin-bottom:16px">
+        Informe o produto como você compra: tamanho da embalagem, preço pago e quanto usa por receita. O custo por grama e o custo por receita são calculados na hora. Você pode sincronizar com a aba Receita para que tudo fique atualizado.
+      </p>
+      <div class="comp-hd">
+        <span class="lbl">Ingrediente</span>
+        <span class="lbl">Embalagem (g ou ml)</span>
+        <span class="lbl">Preço da embalagem (R$)</span>
+        <span class="lbl">Uso por receita (g ou ml)</span>
+        <span class="lbl">Custo/receita (auto)</span>
+        <span></span>
+      </div>
+      <div id="compras-rows"></div>
+      <button class="btn-add" onclick="addCompra()">+ Ingrediente</button>
+    </div>
+
+    <div class="card">
+      <div class="card-t" style="margin-bottom:12px">Resumo de custo por receita</div>
+      <div id="compras-resumo"></div>
+    </div>
+  </div>
+
+  <!-- ═══ RECEITA ═══ -->
+  <div id="tab-receita" style="display:none">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-t">Ingredientes base (por receita)</div>
+        <span class="tag ts">Compartilhados entre os 4 sabores</span>
+      </div>
+      <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">
+        Você pode vincular cada ingrediente ao estoque (aba Compras) para puxar o custo automaticamente, ou preencher o R$/unidade manualmente.
+      </p>
+      <div class="rec-hd">
+        <span class="lbl">Ingrediente / vínculo com estoque</span>
+        <span class="lbl">Qtd/receita</span>
+        <span class="lbl">R$/unidade</span>
+        <span></span>
+      </div>
+      <div id="ing-base-rows"></div>
+      <button class="btn-add" onclick="addIngBase()">+ Ingrediente base</button>
+    </div>
+    <div id="ing-sabores-sec"></div>
+  </div>
+
+  <!-- ═══ EMBALAGEM ═══ -->
+  <div id="tab-embalagem" style="display:none">
+    <div class="card">
+      <div class="card-t" style="margin-bottom:10px">Cobertura por sabor</div>
+      <p style="font-size:12px;color:var(--tx2);margin-bottom:12px">A cobertura completa o peso de 20g por brigadeiro.</p>
+      <div id="cob-rows"></div>
+    </div>
+    <div class="card">
+      <div class="card-t" style="margin-bottom:12px">Embalagens</div>
+      <div class="rec-hd">
+        <span class="lbl">Item</span>
+        <span class="lbl">Qtd por caixa</span>
+        <span class="lbl">R$/unidade</span>
+        <span></span>
+      </div>
+      <div id="emb-rows"></div>
+      <button class="btn-add" onclick="addEmb()">+ Item</button>
+      <div class="div"></div>
+      <div class="g2">
+        <div class="fld">
+          <label>Brigadeiros por caixa</label>
+          <input type="number" id="brig-caixa" value="9" min="1">
+        </div>
+        <div class="fld">
+          <label>Sabores por caixa</label>
+          <select id="div-caixa">
+            <option value="1">1 sabor</option>
+            <option value="2">2 sabores</option>
+            <option value="4" selected>4 sabores</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ VENDA ═══ -->
+  <div id="tab-venda" style="display:none">
+    <div class="card">
+      <div class="card-t" style="margin-bottom:12px">Preço de venda</div>
+      <div class="g2">
+        <div class="fld">
+          <label>Preço por brigadeiro (R$)</label>
+          <input type="number" id="preco-brig" value="5.00" step="0.50" min="0">
+        </div>
+        <div class="fld">
+          <label>Preço por caixa (R$)</label>
+          <input type="number" id="preco-caixa" value="45.00" step="1" min="0">
+          <div class="ht">Deixe 0 para usar o preço unitário</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-calc" onclick="calcular()">Calcular resultado</button>
+  </div>
+
+  <div id="resultado" class="res" style="display:none"></div>
+</div>
+
+<script>
+const FC=['#7F77DD','#BA7517','#0F6E56','#D85A30'];
+const FB=['#EEEDFE','#FAEEDA','#E1F5EE','#FAECE7'];
+const FT=['#3C3489','#633806','#085041','#993C1D'];
+
+let S = {
+  sabores: ['Chocolate','Amendoim','Coco','Pistache'],
+  dist: [0.25,0.25,0.25,0.25],
+
+  // Aba Compras: produto como comprado
+  compras: [
+    {nome:'Leite condensado Carrefour', emb:395,  preco:2.89,  uso:395, un:'g'},
+    {nome:'Creme de leite Carrefour',   emb:200,  preco:2.39,  uso:200, un:'ml'},
+    {nome:'Chocolate nobre (1 kg)',     emb:1000, preco:78.00, uso:80,  un:'g'},
+    {nome:'Cacau em pó (200g)',         emb:200,  preco:18.00, uso:20,  un:'g'},
+  ],
+
+  // Aba Receita: base
+  ingBase: [
+    {nome:'Leite condensado Carrefour', qtd:395, un:'g',  pu:0.00732, vinc:-1},
+    {nome:'Creme de leite Carrefour',   qtd:200, un:'ml', pu:0.01195, vinc:-1},
+    {nome:'Chocolate nobre',            qtd:80,  un:'g',  pu:0.078,   vinc:-1},
+  ],
+  // Aba Receita: exclusivos por sabor
+  ingSabor: [
+    [{nome:'Cacau em pó',        qtd:20, un:'g', pu:0.09,  vinc:-1}],
+    [{nome:'Amendoim triturado', qtd:50, un:'g', pu:0.015, vinc:-1}],
+    [{nome:'Coco ralado',        qtd:30, un:'g', pu:0.022, vinc:-1}],
+    [{nome:'Pasta de pistache',  qtd:30, un:'g', pu:0.18,  vinc:-1}],
+  ],
+  coberturas: [
+    {nome:'Cacau em pó',       gpb:2,   pkg:30},
+    {nome:'Amendoim torrado',  gpb:3,   pkg:18},
+    {nome:'Coco queimado',     gpb:2.5, pkg:20},
+    {nome:'Leite em pó',       gpb:2,   pkg:16},
+  ],
+  embalagens: [
+    {nome:'Caixa kraft',     qtd:1, pu:2.50},
+    {nome:'Forminha papel',  qtd:9, pu:0.08},
+    {nome:'Fita decorativa', qtd:1, pu:0.30},
+  ],
+};
+
+let curTab='config';
+const TABS=['config','compras','receita','embalagem','venda'];
+
+function setTab(t) {
+  TABS.forEach(x=>{ document.getElementById('tab-'+x).style.display=x===t?'block':'none'; });
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',TABS[i]===t));
+  curTab=t; render();
+}
+
+function render() {
+  if(curTab==='config')    renderConfig();
+  if(curTab==='compras')   renderCompras();
+  if(curTab==='receita')   renderReceita();
+  if(curTab==='embalagem') renderEmbalagem();
+}
+
+/* ─── CONFIG ─── */
+function renderConfig() {
+  document.getElementById('sabores-config').innerHTML=S.sabores.map((s,i)=>`
+    <div class="fld">
+      <label>Sabor ${i+1}</label>
+      <input type="text" value="${s}" onchange="S.sabores[${i}]=this.value;renderConfig();"
+        style="border-left:3px solid ${FC[i]}">
+    </div>`).join('');
+  const nr=parseFloat(document.getElementById('num-receitas')?.value)||2;
+  document.getElementById('dist-config').innerHTML=S.sabores.map((s,i)=>`
+    <div style="display:grid;grid-template-columns:130px 1fr 50px 58px;gap:10px;align-items:center;margin-bottom:8px;">
+      <span style="font-size:13px;color:${FC[i]};font-weight:500">${s}</span>
+      <input type="range" min="0" max="100" step="5" value="${Math.round(S.dist[i]*100)}"
+        oninput="S.dist[${i}]=this.value/100;renderConfig()">
+      <span style="font-size:12px;color:var(--tx2)">${Math.round(S.dist[i]*100)}%</span>
+      <span style="font-size:12px;color:var(--tx3)">${(S.dist[i]*nr).toFixed(1)}×</span>
+    </div>`).join('');
+  const tot=S.dist.reduce((a,b)=>a+b,0);
+  document.getElementById('dist-hint').textContent=
+    Math.abs(tot-1)<0.01?'Total: 100% ✓':`Total: ${Math.round(tot*100)}% — deve somar 100%`;
+}
+
+/* ─── COMPRAS ─── */
+function cpg(c){ return c.emb&&c.preco ? c.preco/c.emb : 0; }
+function cu(c) { return cpg(c)*(c.uso||0); }
+
+function renderCompras() {
+  document.getElementById('compras-rows').innerHTML=S.compras.map((c,i)=>`
+    <div class="comp-row">
+      <input type="text" value="${c.nome}" onchange="S.compras[${i}].nome=this.value;renderCompras()">
+      <div class="fld" style="gap:2px">
+        <label style="font-size:10px">Total da embalagem (g/ml)</label>
+        <input type="number" value="${c.emb}" step="1" min="0" placeholder="ex: 395"
+          onchange="S.compras[${i}].emb=parseFloat(this.value)||0;renderCompras()">
+      </div>
+      <div class="fld" style="gap:2px">
+        <label style="font-size:10px">Preço pago (R$)</label>
+        <input type="number" value="${c.preco}" step="0.01" min="0" placeholder="ex: 2.39"
+          onchange="S.compras[${i}].preco=parseFloat(this.value)||0;renderCompras()">
+      </div>
+      <div class="fld" style="gap:2px">
+        <label style="font-size:10px">Uso por receita (g/ml)</label>
+        <input type="number" value="${c.uso}" step="1" min="0" placeholder="ex: 80"
+          onchange="S.compras[${i}].uso=parseFloat(this.value)||0;renderCompras()">
+      </div>
+      <div class="fld" style="gap:2px">
+        <label style="font-size:10px">Custo/receita · R$/g</label>
+        <div class="calc-pill">R$&nbsp;${cu(c).toFixed(4)}&nbsp;<span style="opacity:.65;font-size:10px">(${cpg(c).toFixed(5)}/g)</span></div>
+      </div>
+      <button class="btn-rm" onclick="S.compras.splice(${i},1);renderCompras()" style="margin-top:18px">×</button>
+    </div>`).join('');
+
+  const total=S.compras.reduce((s,c)=>s+cu(c),0);
+  document.getElementById('compras-resumo').innerHTML=`
+    <div class="g3" style="margin-bottom:14px">
+      ${S.compras.map(c=>`
+        <div class="mc">
+          <div class="ml" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nome||'(sem nome)'}</div>
+          <div class="mv" style="font-size:16px">R$ ${cu(c).toFixed(4)}</div>
+          <div class="ms">${c.uso||0}g · R$ ${cpg(c).toFixed(5)}/g</div>
+          <div class="ms">Emb: ${c.emb||0}g por R$ ${(c.preco||0).toFixed(2)}</div>
+        </div>`).join('')}
+    </div>
+    <div style="border-top:0.5px solid var(--bd);padding-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:13px;color:var(--tx2)">Custo base total por receita</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:2px">soma de todos os ingredientes cadastrados</div>
+      </div>
+      <span style="font-size:22px;font-weight:500">R$ ${total.toFixed(4)}</span>
+    </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn-add" onclick="sincronizar()">Sincronizar custos com aba Receita</button>
+      <span id="sync-msg" style="font-size:12px;color:var(--stx);display:none">Sincronizado com sucesso!</span>
+    </div>
+    <div class="ht" style="margin-top:6px">
+      Ao sincronizar, os ingredientes cadastrados aqui são adicionados/atualizados automaticamente na aba Receita com o custo calculado por grama. Ingredientes que não existirem lá serão criados.
+    </div>`;
+}
+
+function addCompra() {
+  S.compras.push({nome:'',emb:0,preco:0,uso:0,un:'g'});
+  renderCompras();
+}
+
+function sincronizar() {
+  S.compras.forEach(c=>{
+    if(!c.nome||!c.emb||!c.preco) return;
+    const rate=cpg(c);
+    const idx=S.ingBase.findIndex(b=>b.nome.toLowerCase()===c.nome.toLowerCase());
+    if(idx>=0){
+      S.ingBase[idx].pu=rate;
+      S.ingBase[idx].qtd=c.uso;
+      S.ingBase[idx].vinc=S.compras.indexOf(c);
+    } else {
+      S.ingBase.push({nome:c.nome,qtd:c.uso,un:c.un||'g',pu:rate,vinc:S.compras.indexOf(c)});
+    }
+  });
+  const m=document.getElementById('sync-msg');
+  if(m){m.style.display='inline';setTimeout(()=>m.style.display='none',2500);}
+}
+
+/* ─── RECEITA ─── */
+function compraOpts(vinc) {
+  return `<option value="-1">-- preço manual --</option>`+
+    S.compras.map((c,i)=>`<option value="${i}" ${vinc===i?'selected':''}>${c.nome||'?'} · R$${cpg(c).toFixed(5)}/g</option>`).join('');
+}
+
+function recRow(ing, arrStr, j) {
+  const vinculado=ing.vinc>=0;
+  return `<div class="rec-row">
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <input type="text" value="${ing.nome}" onchange="${arrStr}[${j}].nome=this.value">
+      <select style="font-size:11px;height:26px;background:${vinculado?'var(--ibg)':'var(--bg2)'};color:${vinculado?'var(--itx)':'var(--tx2)'};"
+        onchange="vincular('${arrStr}',${j},parseInt(this.value))">
+        ${compraOpts(ing.vinc??-1)}
+      </select>
+    </div>
+    <input type="number" value="${ing.qtd}" step="1" min="0"
+      onchange="${arrStr}[${j}].qtd=parseFloat(this.value)||0">
+    <input type="number" value="${ing.pu.toFixed(5)}" step="0.0001" min="0"
+      onchange="${arrStr}[${j}].pu=parseFloat(this.value)||0"
+      ${vinculado?'style="background:var(--ibg);border-color:var(--itx)"':''}>
+    <button class="btn-rm" onclick="${arrStr}.splice(${j},1);renderReceita()">×</button>
+  </div>`;
+}
+
+function vincular(arrStr, j, idx) {
+  // arrStr is a string like "S.ingBase" or "S.ingSabor[2]"
+  let arr;
+  try { arr=eval(arrStr); } catch(e){return;}
+  arr[j].vinc=idx;
+  if(idx>=0 && S.compras[idx]){
+    arr[j].pu=cpg(S.compras[idx]);
+    arr[j].qtd=S.compras[idx].uso;
+    if(!arr[j].nome) arr[j].nome=S.compras[idx].nome;
+  }
+  renderReceita();
+}
+
+function renderReceita() {
+  document.getElementById('ing-base-rows').innerHTML=
+    S.ingBase.map((ing,j)=>recRow(ing,'S.ingBase',j)).join('');
+  document.getElementById('ing-sabores-sec').innerHTML=S.sabores.map((s,i)=>`
+    <div class="card" style="border-left:3px solid ${FC[i]}">
+      <div class="card-hd">
+        <div class="card-t">${s}</div>
+        <span style="font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;background:${FB[i]};color:${FT[i]}">Ingredientes exclusivos</span>
+      </div>
+      <div class="rec-hd">
+        <span class="lbl">Ingrediente / vínculo</span>
+        <span class="lbl">Qtd/receita</span>
+        <span class="lbl">R$/unidade</span>
+        <span></span>
+      </div>
+      ${S.ingSabor[i].map((ing,j)=>recRow(ing,`S.ingSabor[${i}]`,j)).join('')}
+      <button class="btn-add" onclick="S.ingSabor[${i}].push({nome:'',qtd:0,un:'g',pu:0,vinc:-1});renderReceita()">+ Ingrediente</button>
+    </div>`).join('');
+}
+
+function addIngBase(){
+  S.ingBase.push({nome:'',qtd:0,un:'g',pu:0,vinc:-1});
+  renderReceita();
+}
+
+/* ─── EMBALAGEM ─── */
+function renderEmbalagem() {
+  document.getElementById('cob-rows').innerHTML=S.sabores.map((s,i)=>{
+    const c=S.coberturas[i]||{nome:'',gpb:2,pkg:20};
+    return `<div style="display:grid;grid-template-columns:110px 2fr 1fr 1fr;gap:10px;align-items:center;margin-bottom:8px;">
+      <span style="font-size:13px;font-weight:500;color:${FC[i]}">${s}</span>
+      <input type="text" value="${c.nome}" placeholder="Cobertura" onchange="S.coberturas[${i}].nome=this.value">
+      <div class="fld"><label style="font-size:10px">g por brigadeiro</label>
+        <input type="number" value="${c.gpb}" step="0.5" min="0" onchange="S.coberturas[${i}].gpb=parseFloat(this.value)||0"></div>
+      <div class="fld"><label style="font-size:10px">R$ por kg</label>
+        <input type="number" value="${c.pkg}" step="0.5" min="0" onchange="S.coberturas[${i}].pkg=parseFloat(this.value)||0"></div>
+    </div>`;}).join('');
+  document.getElementById('emb-rows').innerHTML=S.embalagens.map((e,i)=>`
+    <div class="rec-row">
+      <input type="text" value="${e.nome}" onchange="S.embalagens[${i}].nome=this.value">
+      <input type="number" value="${e.qtd}" step="1" min="0" onchange="S.embalagens[${i}].qtd=parseFloat(this.value)||0">
+      <input type="number" value="${e.pu.toFixed(2)}" step="0.01" min="0" onchange="S.embalagens[${i}].pu=parseFloat(this.value)||0">
+      <button class="btn-rm" onclick="S.embalagens.splice(${i},1);renderEmbalagem()">×</button>
+    </div>`).join('');
+}
+
+function addEmb(){
+  S.embalagens.push({nome:'',qtd:1,pu:0});
+  renderEmbalagem();
+}
+
+/* ─── CALCULAR ─── */
+function calcular() {
+  const nRec   =parseFloat(document.getElementById('num-receitas').value)||2;
+  const bpRec  =parseFloat(document.getElementById('brig-por-receita').value)||40;
+  const bpCx   =parseFloat(document.getElementById('brig-caixa').value)||9;
+  const divC   =parseInt(document.getElementById('div-caixa').value)||4;
+  const pBrigU =parseFloat(document.getElementById('preco-brig').value)||0;
+  const pCaixa =parseFloat(document.getElementById('preco-caixa').value)||0;
+
+  const baseRec=S.ingBase.reduce((s,ing)=>s+ing.qtd*ing.pu,0);
+  const totBrig=nRec*bpRec;
+
+  const res=S.sabores.map((sabor,i)=>{
+    const frac=S.dist[i], nR=nRec*frac, nB=nR*bpRec;
+    const cBase=baseRec*nR;
+    const cExcl=S.ingSabor[i].reduce((s,ing)=>s+ing.qtd*ing.pu*nR,0);
+    const cob=S.coberturas[i]||{gpb:0,pkg:0};
+    const cCob=(cob.gpb/1000)*cob.pkg*nB;
+    const cEmbCx=S.embalagens.reduce((s,e)=>s+e.qtd*e.pu,0);
+    const bSC=bpCx/divC, nCx=nB/bSC;
+    const cEmb=nCx*(cEmbCx/divC);
+    const cTot=cBase+cExcl+cCob+cEmb;
+    const cpB=nB>0?cTot/nB:0;
+    const recTot=pCaixa>0?nCx*(pCaixa/divC):nB*pBrigU;
+    const lucro=recTot-cTot;
+    const marg=recTot>0?(lucro/recTot)*100:0;
+    const pU=pCaixa>0?pCaixa/bpCx:pBrigU;
+    const mkup=cpB>0?(pU/cpB-1)*100:0;
+    return {sabor,i,frac,nR,nB,cBase,cExcl,cCob,cEmb,cTot,cpB,recTot,lucro,marg,mkup,nCx};
+  });
+
+  const tC=res.reduce((s,r)=>s+r.cTot,0);
+  const tR=res.reduce((s,r)=>s+r.recTot,0);
+  const tL=tR-tC, tM=tR>0?(tL/tR)*100:0;
+  const pF=pCaixa>0?pCaixa/bpCx:pBrigU;
+
+  const detBase=S.ingBase.map(ing=>`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--tx2);margin-bottom:4px;gap:8px">
+      <span>${ing.nome||'?'} — ${ing.qtd}g a R$${ing.pu.toFixed(5)}/g</span>
+      <span style="font-weight:500;white-space:nowrap">R$ ${(ing.qtd*ing.pu).toFixed(4)}/receita</span>
+    </div>`).join('');
+
+  document.getElementById('resultado').style.display='block';
+  document.getElementById('resultado').innerHTML=`
+    <div class="div"></div>
+    <div class="sec">Resultado — ${nRec} receitas · ${totBrig} brigadeiros</div>
+    <div class="g4" style="margin-bottom:14px">
+      <div class="mc"><div class="ml">Custo total</div><div class="mv">R$ ${tC.toFixed(2)}</div><div class="ms">${totBrig} brigadeiros</div></div>
+      <div class="mc"><div class="ml">Receita total</div><div class="mv">R$ ${tR.toFixed(2)}</div><div class="ms">R$ ${pF.toFixed(2)}/un</div></div>
+      <div class="mc"><div class="ml">Lucro total</div><div class="mv" style="color:${tL>0?'var(--stx)':'var(--dtx)'}">R$ ${tL.toFixed(2)}</div><div class="ms">Margem ${tM.toFixed(1)}%</div></div>
+      <div class="mc"><div class="ml">Custo médio/brigadeiro</div><div class="mv">R$ ${(tC/totBrig).toFixed(3)}</div><div class="ms">Markup ${((pF/(tC/totBrig)-1)*100).toFixed(0)}%</div></div>
+    </div>
+
+    <div class="card" style="background:var(--bg2)">
+      <div class="card-t" style="margin-bottom:10px">Custo base por receita (ingredientes compartilhados)</div>
+      ${detBase}
+      <div style="border-top:0.5px solid var(--bd);padding-top:8px;margin-top:8px;display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:13px;color:var(--tx2)">Total base / receita</span>
+        <span style="font-size:16px;font-weight:500">R$ ${baseRec.toFixed(4)}</span>
+      </div>
+    </div>
+
+    <div class="sec">Detalhamento por sabor</div>
+    ${res.map(r=>{
+      const tc=r.marg>=40?'ts':r.marg>=20?'tw':'td';
+      const excl=S.ingSabor[r.i].length
+        ? S.ingSabor[r.i].map(ing=>`
+            <div style="font-size:11px;color:var(--tx3);margin-bottom:3px;display:flex;justify-content:space-between;gap:8px">
+              <span>${ing.nome||'?'} — ${ing.qtd}g × R$${ing.pu.toFixed(5)}/g</span>
+              <span style="white-space:nowrap">R$ ${(ing.qtd*ing.pu).toFixed(4)}/receita</span>
+            </div>`).join('')
+        : '<div style="font-size:11px;color:var(--tx3)">Nenhum ingrediente exclusivo</div>';
+      return `<div class="fr" style="border-left:3px solid ${FC[r.i]}">
+        <div class="fr-hd">
+          <span style="font-size:14px;font-weight:500;color:${FC[r.i]}">${r.sabor}</span>
+          <span class="tag ${tc}">Margem ${r.marg.toFixed(1)}%</span>
+        </div>
+        <div class="rg">
+          <div class="mc"><div class="ml">Brigadeiros</div><div class="mv" style="font-size:18px">${Math.round(r.nB)}</div><div class="ms">${(r.frac*100).toFixed(0)}% · ${r.nR.toFixed(1)} receitas</div></div>
+          <div class="mc"><div class="ml">Custo total</div><div class="mv" style="font-size:18px">R$ ${r.cTot.toFixed(2)}</div><div class="ms">R$ ${r.cpB.toFixed(4)}/un</div></div>
+          <div class="mc"><div class="ml">Receita</div><div class="mv" style="font-size:18px">R$ ${r.recTot.toFixed(2)}</div><div class="ms">${r.nCx.toFixed(1)} caixas</div></div>
+          <div class="mc"><div class="ml">Lucro</div><div class="mv" style="font-size:18px;color:${r.lucro>0?'var(--stx)':'var(--dtx)'}">R$ ${r.lucro.toFixed(2)}</div><div class="ms">Markup ${r.mkup.toFixed(0)}%</div></div>
+        </div>
+        <div class="cb" style="margin-bottom:8px">
+          <span>Base: R$ ${r.cBase.toFixed(2)}</span>
+          <span>Exclusivos: R$ ${r.cExcl.toFixed(2)}</span>
+          <span>Cobertura: R$ ${r.cCob.toFixed(2)}</span>
+          <span>Embalagem: R$ ${r.cEmb.toFixed(2)}</span>
+        </div>
+        <div style="border-top:0.5px solid var(--bd);padding-top:8px">
+          <div style="font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:5px">Ingredientes exclusivos:</div>
+          ${excl}
+        </div>
+      </div>`;
+    }).join('')}`;
+  document.getElementById('resultado').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+render();
+</script>
+</body>
+</html>
